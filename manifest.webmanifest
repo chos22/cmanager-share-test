@@ -1,1 +1,1 @@
-{"name":"cmanager 공유 연결 테스트","short_name":"공유 테스트","start_url":"./","display":"standalone","background_color":"#f1f6ff","theme_color":"#2563eb","icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}
+{"name":"우리 가족 카드 관리","short_name":"카드관리","description":"개인용 카드 실적 및 혜택 관리","start_url":"./","scope":"./","display":"standalone","background_color":"#f3f7ff","theme_color":"#2563eb","icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
