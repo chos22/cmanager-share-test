@@ -1,10 +1,11 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#2563eb"><meta name="apple-mobile-web-app-capable" content="yes"><title>cmanager 공유 연결 테스트</title><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><style>:root{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#1b2841;background:#f1f6ff;font-synthesis:none}*{box-sizing:border-box}body{margin:0}main{max-width:660px;margin:0 auto;padding:26px 18px 60px}.eyebrow{font-size:12px;letter-spacing:2px;font-weight:800;color:#2563eb}h1{font-size:27px;margin:10px 0 7px}header p,.hint,footer{color:#63758e;font-size:13px;line-height:1.55}h2{font-size:17px;margin:0 0 15px}.card{background:white;border-radius:20px;margin:18px 0;padding:22px 19px;box-shadow:0 6px 25px #2b54900d}label{display:block;font-size:13px;font-weight:700;margin:13px 0}input{display:block;width:100%;border:1px solid #d1dbeb;border-radius:11px;padding:12px 13px;font-size:16px;margin-top:7px;background:white;color:#182742}button{border:0;border-radius:11px;background:#2563eb;color:#fff;padding:12px 15px;cursor:pointer;font-size:14px;font-weight:700;min-height:43px}button.secondary{background:#eaf1fd;color:#2454a6}button:disabled{opacity:.45;cursor:not-allowed}.actions{display:flex;flex-wrap:wrap;gap:10px}.status{background:#f0f4fb;border-radius:10px;padding:11px;font-size:13px;white-space:pre-wrap;line-height:1.65}.readout{padding:14px;background:#eef5ff;border-radius:13px;margin-top:15px;display:grid;gap:8px;font-size:12px;color:#6b7890}.readout strong{font-size:17px;color:#1b2841;word-break:break-word}#status{font-size:13px;line-height:1.5;padding:10px 2px;white-space:pre-wrap}#status.error{color:#c0392b}#status.ok{color:#168356}footer{text-align:center}
-</style></head><body><main><header><div class="eyebrow">CMANAGER · 공유 기능 테스트</div><h1>부부 공동 관리 연결 <small style="font-size:12px;color:#2563eb">진단 버전 v2</small></h1><p>현재 사용 중인 cmanager v10은 변경하지 않습니다.</p></header><section class="card"><h2>① Supabase 연결 정보</h2><label>Project URL<input id="url" type="url" placeholder="https://xxxxxxxx.supabase.co" autocomplete="off"></label><label>Publishable key<input id="key" type="text" placeholder="sb_publishable_..." autocomplete="off" autocapitalize="off" spellcheck="false"></label><button id="save-config" class="secondary">이 기기에 연결 정보 저장</button><p class="hint">이 값은 내 아이폰에만 저장됩니다. <strong>secret / service_role 키는 절대 입력하지 마세요.</strong></p></section><section class="card"><h2>② 앱 계정 로그인</h2><label>이메일<input id="email" type="email" placeholder="앱 사용자 이메일" autocomplete="email"></label><label>비밀번호<input id="password" type="password" placeholder="앱 사용자 비밀번호" autocomplete="current-password"></label><div class="actions"><button id="login">로그인하고 연결 확인</button><button id="logout" class="secondary">로그아웃</button></div><p class="hint">Supabase 대시보드 계정이 아니라 Authentication → Users에서 만든 앱 계정으로 로그인하세요.</p></section><section class="card"><h2>③ 공동 데이터 테스트</h2><div id="identity" class="status">로그인 전</div><label>테스트 메시지<input id="message" type="text" maxlength="80" placeholder="예: 공유 연결 성공!"></label><div class="actions"><button id="write" disabled>공동 저장소에 저장</button><button id="read" class="secondary" disabled>공동 저장소에서 읽기</button></div><p class="hint">여기에는 카드나 결제 기록을 저장하지 않습니다. 두 기기에서 같은 메시지가 보이는지만 확인합니다.</p><div class="readout"><span>공유 저장소의 최근 메시지</span><strong id="remote-msg">없음</strong></div></section><div role="status" id="status" aria-live="polite">프로그램 준비 중… 아래에 “버튼 연결 완료”가 표시되는지 확인하세요.</div><footer>테스트가 끝나면 실제 카드 공유 기능을 안전하게 연결할 수 있습니다.</footer></main><script>'use strict';
+</style></head><body><main><header><div class="eyebrow">CMANAGER · 공유 기능 테스트</div><h1>부부 공동 관리 연결 <small style="font-size:12px;color:#2563eb">진단 버전 v3</small></h1><p>현재 사용 중인 cmanager v10은 변경하지 않습니다.</p></header><section class="card"><h2>① Supabase 연결 정보</h2><label>Project URL<input id="url" type="url" placeholder="https://xxxxxxxx.supabase.co" autocomplete="off"></label><label>Publishable key<input id="key" type="text" placeholder="sb_publishable_..." autocomplete="off" autocapitalize="off" spellcheck="false"></label><button id="save-config" class="secondary" type="button">이 기기에 연결 정보 저장</button><p id="config-feedback" role="status" aria-live="polite" style="display:none;margin:12px 0 0;padding:12px;border-radius:10px;background:#eff6ff;font-size:14px;font-weight:700"></p><p class="hint">이 값은 내 아이폰에만 저장됩니다. <strong>secret / service_role 키는 절대 입력하지 마세요.</strong></p></section><section class="card"><h2>② 앱 계정 로그인</h2><label>이메일<input id="email" type="email" placeholder="앱 사용자 이메일" autocomplete="email"></label><label>비밀번호<input id="password" type="password" placeholder="앱 사용자 비밀번호" autocomplete="current-password"></label><div class="actions"><button id="login" type="button">로그인하고 연결 확인</button><button id="logout" class="secondary" type="button">로그아웃</button></div><p id="login-feedback" role="status" aria-live="polite" style="display:none;margin:12px 0 0;padding:12px;border-radius:10px;background:#eff6ff;font-size:14px;font-weight:700"></p><p class="hint">Supabase 대시보드 계정이 아니라 Authentication → Users에서 만든 앱 계정으로 로그인하세요.</p></section><section class="card"><h2>③ 공동 데이터 테스트</h2><div id="identity" class="status">로그인 전</div><label>테스트 메시지<input id="message" type="text" maxlength="80" placeholder="예: 공유 연결 성공!"></label><div class="actions"><button id="write" disabled>공동 저장소에 저장</button><button id="read" class="secondary" disabled>공동 저장소에서 읽기</button></div><p class="hint">여기에는 카드나 결제 기록을 저장하지 않습니다. 두 기기에서 같은 메시지가 보이는지만 확인합니다.</p><div class="readout"><span>공유 저장소의 최근 메시지</span><strong id="remote-msg">없음</strong></div></section><div role="status" id="status" aria-live="polite">프로그램 준비 중… 아래에 “버튼 연결 완료”가 표시되는지 확인하세요.</div><footer>테스트가 끝나면 실제 카드 공유 기능을 안전하게 연결할 수 있습니다.</footer></main><script>'use strict';
 const $=id=>document.getElementById(id);
 const CONFIG_KEY='cmanager_share_test_config_v1';
 const TOKEN_KEY='cmanager_share_test_session_v1';
 let config=null,session=null,householdId=null;
 function note(message,error=false){$('status').textContent=message;$('status').className=error?'error':'ok'}
+function feedback(id,message,error=false){const el=$(id);el.style.display='block';el.style.background=error?'#fff1f0':'#eff6ff';el.style.color=error?'#b42318':'#1453a0';el.textContent=message;}
 function loadJSON(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}}
 function validConfig(value){try{const u=new URL(value.url);return u.protocol==='https:'&&u.hostname.endsWith('.supabase.co')&&/^sb_publishable_/.test(value.key)}catch{return false}}
 function setIdentity(){ $('identity').textContent=session&&householdId?`로그인됨: ${session.user?.email||'사용자'}\n공동 관리 공간 ID: ${householdId}`:'로그인 전'; $('write').disabled=!householdId; $('read').disabled=!householdId;}
@@ -34,11 +35,17 @@ async function connectHousehold(){
  householdId=memberships[0].household_id;setIdentity();note('가족 공동 관리 공간에 안전하게 연결했어요.');
 }
 $('save-config').onclick=()=>{
- const data={url:$('url').value.trim().replace(/\/$/,''),key:$('key').value.trim()};
- if(!validConfig(data)){note('Project URL 또는 Publishable key 형식을 확인하세요. sb_secret_ 키는 사용할 수 없습니다.',true);return}
- config=data;localStorage.setItem(CONFIG_KEY,JSON.stringify(config));note('연결 정보를 이 기기에 저장했어요.');
+ feedback('config-feedback','저장 버튼이 눌렸어요. 정보 확인 중…');
+ try {
+  const data={url:$('url').value.trim().replace(/\/$/,''),key:$('key').value.trim()};
+  if(!validConfig(data)){const m='형식을 확인하세요. URL은 https://...supabase.co, 키는 sb_publishable_ 로 시작해야 해요.';feedback('config-feedback',m,true);note(m,true);return;}
+  localStorage.setItem(CONFIG_KEY,JSON.stringify(data));config=data;
+  feedback('config-feedback','✅ 연결 정보를 이 기기에 저장했어요. 이제 아래에서 로그인하세요.');
+  note('연결 정보를 이 기기에 저장했어요.');
+ }catch(e){feedback('config-feedback','저장 오류: '+e.message,true);note('저장 오류: '+e.message,true)}
 };
 $('login').onclick=async()=>{
+ feedback('login-feedback','로그인 버튼이 눌렸어요. 확인 중…');
  try{
   if(!config)throw Error('먼저 연결 정보를 저장하세요.');
   const email=$('email').value.trim(),password=$('password').value;
@@ -49,8 +56,8 @@ $('login').onclick=async()=>{
   session={...result,expires_at:Math.floor(Date.now()/1000)+(result.expires_in||3600)};
   localStorage.setItem(TOKEN_KEY,JSON.stringify(session));
   $('password').value='';householdId=null;
-  await connectHousehold();
- }catch(e){householdId=null;setIdentity();note('연결 실패: '+e.message,true)}
+  await connectHousehold();feedback('login-feedback','✅ 로그인 완료! 공동 공간에 연결됐어요.');
+ }catch(e){householdId=null;setIdentity();feedback('login-feedback','로그인 실패: '+e.message,true);note('연결 실패: '+e.message,true)}
 };
 $('logout').onclick=async()=>{session=null;householdId=null;localStorage.removeItem(TOKEN_KEY);setIdentity();$('remote-msg').textContent='없음';note('이 기기에서 로그아웃했어요.')};
 $('write').onclick=async()=>{
@@ -81,7 +88,7 @@ $('read').onclick=async()=>{
  if(config&&validConfig(config)){$('url').value=config.url;$('key').value=config.key}
  if(session){try{await connectHousehold()}catch(e){session=null;householdId=null;localStorage.removeItem(TOKEN_KEY);setIdentity();note('다시 로그인해 주세요: '+e.message,true)}}
  setIdentity();
- note('버튼 연결 완료 · v2');
+ note('버튼 연결 완료 · v3');
 })();
 </script><script>
 // Test version: no service worker. Clear cached old test app resources only.
